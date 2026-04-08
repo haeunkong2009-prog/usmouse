@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>My Site</title>
+
+<style>
+body {
+  background: black;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+  padding: 40px;
+}
+img { max-width: 300px; margin: 10px; }
+a { color: lightblue; }
+input, textarea { width: 80%; margin: 5px; }
+button { padding: 10px; margin: 5px; }
+</style>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
+
+</head>
+<body>
+
+<!-- 보기 페이지 -->
+<div id="view">
+<h1 id="title"></h1>
+<p id="content"></p>
+<div id="links"></div>
+<div id="images"></div>
+<audio id="music" controls></audio>
+</div>
+
+<!-- 편집 페이지 -->
+<div id="edit" style="display:none;">
+<h2>설정</h2>
+<input id="titleInput" placeholder="제목">
+<textarea id="contentInput" placeholder="내용"></textarea>
+<input id="linkInput" placeholder="링크">
+<input id="imageInput" placeholder="이미지 URL">
+<input id="musicInput" placeholder="음악 URL">
+<br>
+<button onclick="save()">저장</button>
+</div>
+
+<script>
+// 🔥 Firebase 설정 (나중에 붙여넣기)
+const firebaseConfig = {
+  apiKey: "여기에",
+  authDomain: "여기에",
+  databaseURL: "여기에",
+  projectId: "여기에",
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 모드 확인
+const params = new URLSearchParams(location.search);
+if(params.get("mode") === "edit"){
+  edit.style.display = "block";
+  view.style.display = "none";
+}
+
+// 저장
+function save(){
+  const data = {
+    title: titleInput.value,
+    content: contentInput.value,
+    link: linkInput.value,
+    image: imageInput.value,
+    music: musicInput.value
+  };
+  db.ref("site").set(data);
+  alert("저장됨");
+}
+
+// 불러오기
+db.ref("site").on("value", snap=>{
+  const d = snap.val() || {};
+  title.innerText = d.title || "";
+  content.innerText = d.content || "";
+
+  links.innerHTML = d.link ? `<a href="${d.link}" target="_blank">링크</a>` : "";
+  images.innerHTML = d.image ? `<img src="${d.image}">` : "";
+  music.src = d.music || "";
+});
+</script>
+
+</body>
+</html>
